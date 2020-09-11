@@ -13,12 +13,26 @@ public class DeptDAO {
 	ArrayList<DeptVO> list = new ArrayList<DeptVO>();
 	Connection conn;
 	ResultSet rs = null;
-	public ArrayList<DeptVO> selectAll() {
+	public ArrayList<DeptVO> selectAll(DeptVO deptvo) {
 		DeptVO resultVO = null;
 		try {
-			String sql = "select * from departments";
+			String where = "where 1=1";
+			if(deptvo.getDepartment_name() != null) {
+				where += " and department_name like '%' || ? || '%' ";
+			}
+			String sql = "select a.* " + 
+					"from("+ 
+					"  select rownum rn,b.*" + 
+					"  from (select department_id , department_name,manager_id,location_id from departments "+where+" order by department_id ) b" + 
+					") a where rn between ? and ? ";
 			conn = ConnectionManager.getConnnect();
 			stmt = conn.prepareStatement(sql);
+			int pos = 1;
+			if(deptvo.getDepartment_name() != null) {
+				stmt.setString(pos++,deptvo.getDepartment_name());
+			}
+			stmt.setInt(pos++, deptvo.getFirst());
+			stmt.setInt(pos++, deptvo.getLast());
 			rs = stmt.executeQuery();
 			while(rs.next()) {
 				resultVO = new DeptVO(rs.getInt("department_id"),rs.getString("department_name"),rs.getInt("manager_id"),rs.getInt("location_id"));
@@ -109,5 +123,29 @@ public class DeptDAO {
 			e.printStackTrace();
 		}
 		ConnectionManager.close(conn);
+	}
+	public int count(DeptVO deptvo) {
+		int cnt = 0;
+		try {
+			conn = ConnectionManager.getConnnect();
+			String where = "where 1=1";
+			if(deptvo.getDepartment_name() != null) {
+				where += " and department_name like '%' || ? || '%' ";
+			}
+			String sql = "select count(*) from departments "+ where;
+			stmt = conn.prepareStatement(sql);
+			int pos =1;
+			if( deptvo.getDepartment_name() !=null) {
+				stmt.setString(pos++, deptvo.getDepartment_name());
+			}
+			rs = stmt.executeQuery();
+			rs.next();
+			cnt = rs.getInt(1);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			ConnectionManager.close(conn);
+		}
+		return cnt;
 	}
 }

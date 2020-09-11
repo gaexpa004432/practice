@@ -37,7 +37,7 @@ public class EmpInsertServ extends HttpServlet {
 		List<EmpVO> manager = EmpDAO.getInstance().selectAll();
 		ArrayList<DeptVO> depart = new ArrayList<DeptVO>();
 		DeptDAO dao = new DeptDAO();
-		depart = dao.selectAll();
+		depart = dao.selectAll(null);
 		
 		request.setAttribute("depart", depart);
 		request.setAttribute("managerList", manager);

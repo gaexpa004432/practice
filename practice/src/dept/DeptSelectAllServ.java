@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import common.Paging;
+
 /**
  * Servlet implementation class DeptSelectAllServ
  */
@@ -28,9 +30,31 @@ public class DeptSelectAllServ extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//파라미터 받기
 		DeptDAO dao = new DeptDAO();
-		ArrayList<DeptVO> list =dao.selectAll();
+		
+		String p = request.getParameter("p");
+		String department_name = request.getParameter("department_name");
+		DeptVO vo = new DeptVO();
+		vo.setDepartment_name(department_name);
+		
+		Paging paging = new Paging();
+		
+		int page = 1;
+		if(p != null) {
+			page = Integer.parseInt(p);
+		}
+		paging.setPageUnit(5);
+		paging.setPageSize(3);
+		paging.setPage(page);
+		paging.setTotalRecord(dao.count(vo));
+		vo.setFirst(paging.getFirst());
+		vo.setLast(paging.getLast());
+		
+		
+		ArrayList<DeptVO> list =dao.selectAll(vo);
 		System.out.println("select exe");
+		request.setAttribute("paging", paging);
 		request.setAttribute("list",list);
 		request.getRequestDispatcher("deptSelectAll.jsp").forward(request, response);
 		

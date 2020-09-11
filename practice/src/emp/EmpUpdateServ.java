@@ -42,7 +42,7 @@ public class EmpUpdateServ extends HttpServlet {
 		List<EmpVO> manager = EmpDAO.getInstance().selectAll();
 		ArrayList<DeptVO> depart = new ArrayList<DeptVO>();
 		DeptDAO dao1 = new DeptDAO();
-		depart = dao1.selectAll();
+		depart = dao1.selectAll(null);
 		request.setAttribute("depart", depart);
 		request.setAttribute("managerList", manager);
 		request.setAttribute("joblist", jobList);
